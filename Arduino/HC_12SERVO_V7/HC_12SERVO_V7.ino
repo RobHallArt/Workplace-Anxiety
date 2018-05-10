@@ -100,9 +100,9 @@ void loop() {
                         setColour(255,0,0);                     // set LEDs to red
 
                         calcVal = abs(180-atan2(recievedY - machineY, recievedX - machineX) * 57296 / 1000);
-                            // arc tangent is used to calculate the direction the servo is pointing
-                            // it is multiplied by 57296 / 1000 to convert from radians to degrees
-                            // the arduino is slow at calculating with decimals so we try to keep everything in integers
+                        // arc tangent is used to calculate the direction the servo is pointing
+                        // it is multiplied by 57296 / 1000 to convert from radians to degrees
+                        // the arduino is slow at calculating with decimals so we try to keep everything in integers
 
 
                         total = total - readings[readIndex];    // remove the oldest servo position from the total
