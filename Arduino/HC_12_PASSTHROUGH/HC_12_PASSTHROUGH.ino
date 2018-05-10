@@ -1,33 +1,20 @@
-#include <SoftwareSerial.h>
-#include <VSync.h>
+#include <SoftwareSerial.h>                      // import SoftwareSerial library for HC-12
 
-SoftwareSerial HC12(4,5); // r,t
-ValueReceiver<2> receiver;
-
-int mouseX, mouseY;
+SoftwareSerial HC12(4,5); // RX,TX               // initialise SoftwareSerial instance with HC-12 pins
 
 void setup() {
-  receiver.observe(mouseX);
-  receiver.observe(mouseY);
-  
-  // put your setup code here, to run once:
-  Serial.begin(115200);
-  HC12.begin(115200);
+
+        Serial.begin(115200);                    // begin communication with PC at 115200 bits per second
+        HC12.begin(115200);                      // begin communication with HC-12 115200 bits per second these must match to prevent sync issues
 }
 
 void loop() {
-  receiver.sync();
-  // put your main code here, to run repeatedly:
 
-  while(HC12.available()){
-    Serial.write(HC12.read());
-  }
+        while(HC12.available()) {                // while HC-12 is recieving
+                Serial.write(HC12.read());       // send to PC via standard Serial
+        }
 
-    while(Serial.available()){
-      HC12.write(Serial.read());
-    }
-  
-//  HC12.write(mouseX);
-//  delay(100);
-
+        while(Serial.available()) {              // while recieving from connected PC
+                HC12.write(Serial.read());       // send to HC-12 to send to machines
+        }
 }
