@@ -1,45 +1,34 @@
-import processing.serial.*;
-
+import processing.serial.*;                           // import libraries
 import KinectPV2.KJoint;
 import KinectPV2.*;
 
-Serial myPort;
-KinectPV2 kinect;
+Serial myPort;                                        // create instance of Serial with which we will talk to the HC-12 Passthrough board.
+KinectPV2 kinect;                                     // create instance of KinectPV2 to handle the Kinect tracking
 
-// Machine ID 0 - X/Y
-
-//int MAC0Y = 20;
-//int MAC0X = 20;
-
-int areaX = 180;
+int areaX = 180;                                      // define the area of the trackable field
 int areaY = 180;
 
-PVector[] machines = new PVector[7];
+PVector[] machines = new PVector[7];                  // create 7 machines as an array of PVectors
 
-public int kinectyPos;
+public int kinectyPos;                                // create public variables for the tracking data we get from the kinect
 public int kinectxPos;
 
 
 void setup(){
-        //size(1024,600);
-        fullScreen();
-        frameRate(20);
+        size(1024,600);                               // set size to 1024x600 as this is the resolution of the handheld screen used to operate this sketch
+        //fullScreen();                               // sketch is set to fullScreen when running on handheld display
+        frameRate(20);                                // limit framerate to 20 to limit the frequency of draw() calls in tern limiting frequency of Serial calls to prevent overloading of the Arduino
 
-        ellipseMode(CENTER);
+        ellipseMode(CENTER);                          // draw ellipses from the center to reduce confusion down the line
 
-        kinect = new KinectPV2(this);
+        kinect = new KinectPV2(this);                 // initialise instance of KinectPV2
+        kinect.enableColorImg(true);                  // enable the full spectrum camera in the Kinect
+        kinect.enableSkeleton3DMap(true);             // enable Kinect skeleton tracking
+        kinect.init();                                // initialise the Kinect with these parameters
 
-        kinect.enableColorImg(true);
+        String portName = Serial.list()[0];           // open a serial port to the Arduino using the first open COM channel (only one connected)
 
-        //enable 3d  with (x,y,z) position
-        kinect.enableSkeleton3DMap(true);
-
-        kinect.init();
-
-        //noLoop();
-        String portName = Serial.list()[0];
-
-        machines[0] = new PVector(0,0);
+        machines[0] = new PVector(0,0);               // set positions of each machine in the trackable field
         machines[1] = new PVector(30,-20);
         machines[2] = new PVector(60,-30);
         machines[3] = new PVector(90,-40);
@@ -47,8 +36,8 @@ void setup(){
         machines[5] = new PVector(150,-20);
         machines[6] = new PVector(180,0);
 
-        for(int i = 0; i<Serial.list().length; i++) {
-                println(Serial.list()[i]);
+        for(int i = 0; i<Serial.list().length; i++) {           // loop through available COM ports
+                println(Serial.list()[i]);                      // print each to the console (for debugging)
         }
         myPort = new Serial(this, portName, 115200);
 }
@@ -67,9 +56,7 @@ void draw(){
                         KJoint[] joints = skeleton.getJoints();
                         kinectxPos = constrain(int(map(joints[KinectPV2.JointType_SpineBase].getX(),-1.55,1.55,0,180)),0,180)-20;
                         kinectyPos = constrain(int(map(joints[KinectPV2.JointType_SpineBase].getZ(),1.85,3,0,180)),0,180);
-                        //println(xPos,yPos,mouseX,mouseY);
                         fill(255,0,0);
-                        //noStroke();
                         if(map(kinectyPos,0,areaX,0,180)<180) {
 
                                 myPort.write(nf(int(map(kinectxPos,0,180,0,180)),3)+"-"+nf(int(map(kinectyPos,0,180,0,180)),3)+"," +".");
@@ -90,33 +77,6 @@ void draw(){
                                 }
                                 popMatrix();
                         }
-                        //X and Z are only relevant properties.
-                        //minX = min(joints[KinectPV2.JointType_SpineBase].getX(),minX);
-                        //maxX = max(joints[KinectPV2.JointType_SpineBase].getX(),maxX);
-                        //minZ = min(joints[KinectPV2.JointType_SpineBase].getZ(),minZ);
-                        //maxZ = max(joints[KinectPV2.JointType_SpineBase].getZ(),maxZ);
-                        //println(minX,minZ,maxX,maxZ);
                 }
         }
-
-        //if(mouseX>5 && mouseX <170){
-        //  myPort.write(nf(int(map(mouseX,0,width,0,180)),3)+"-"+nf(int(map(mouseY,0,height,0,180)),3)+"," +".");
-        //  println(nf(int(map(mouseX,0,width,0,180)),3)+"-"+nf(int(map(mouseY,0,height,0,180)),3)+"," +".");
-        //}
-
-        //if(mouseX>5 && mouseX<170 && mouseY>0 && mouseY<height){
-
-        //  for(int i = 0; i<machines.length;i++){
-        //    strokeWeight(80);
-        //    stroke(255);
-        //    pushMatrix();
-        //      translate(machines[i].x,machines[i].y);
-        //      //scale(0.1);
-        //      rotate(atan2(map(mouseY,0,180,0,180) - map(machines[i].y,0,180,0,180), map(mouseX,0,180,0,180) - map(machines[i].x,0,180,0,180)));
-        //      textSize(32);
-        //      text(i,-10,10);
-        //      //triangle(-10,-10,20,-10,0,10);
-        //    popMatrix();
-        //  }
-        //}
 }
