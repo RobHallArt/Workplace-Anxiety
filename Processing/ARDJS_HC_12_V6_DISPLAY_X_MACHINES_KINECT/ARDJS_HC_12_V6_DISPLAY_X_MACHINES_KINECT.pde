@@ -39,43 +39,48 @@ void setup(){
         for(int i = 0; i<Serial.list().length; i++) {           // loop through available COM ports
                 println(Serial.list()[i]);                      // print each to the console (for debugging)
         }
-        myPort = new Serial(this, portName, 115200);
+        myPort = new Serial(this, portName, 115200);            // initialise the Serial port with a baud(data) rate of 115200 bits per second
 }
 
 void draw(){
 
-        background(0);
-        image(kinect.getColorImage(), 0, 0, 640, 368);
+        background(0);                                          // set background to black to clear screen each frame
+        image(kinect.getColorImage(), 0, 0, 640, 368);          // display color image from kinec tot the left of the screen
 
-        ArrayList<KSkeleton> skeletonArray =  kinect.getSkeleton3d();
+        ArrayList<KSkeleton> skeletonArray =  kinect.getSkeleton3d();       // get the array of skeletons for this frame
 
-        //individual JOINTS
-        for (int i = 0; i < skeletonArray.size(); i++) {
-                KSkeleton skeleton = (KSkeleton) skeletonArray.get(skeletonArray.size()-1);
-                if (skeleton.isTracked()) {
-                        KJoint[] joints = skeleton.getJoints();
-                        kinectxPos = constrain(int(map(joints[KinectPV2.JointType_SpineBase].getX(),-1.55,1.55,0,180)),0,180)-20;
+        for (int i = 0; i < skeletonArray.size(); i++) {                                          // iterate through every skeleton in the skeleton array
+                KSkeleton skeleton = (KSkeleton) skeletonArray.get(skeletonArray.size()-1);       // get the skeleton of the most recent person to enter the visual field
+
+                if (skeleton.isTracked()) {                                                       // while the skeleton is tracked
+                        KJoint[] joints = skeleton.getJoints();                                   // get array of joints from the skeleton
+                        kinectxPos = constrain(int(map(joints[KinectPV2.JointType_SpineBase].getX(),-1.55,1.55,0,180)),0,180)-20;             // calculate a position for the base of the user's spine in the 2D trackable field
                         kinectyPos = constrain(int(map(joints[KinectPV2.JointType_SpineBase].getZ(),1.85,3,0,180)),0,180);
-                        fill(255,0,0);
-                        if(map(kinectyPos,0,areaX,0,180)<180) {
 
+                        if(map(kinectyPos,0,areaX,0,180)<180) {              // if the y position of the user is less than 180, then they are being tracked
+
+                                // the write command here sends two values to the Arduino in a manner that allows for error correction later
+                                // the command sends the position in the form "xxx-yyy,." this means that even if the number is 1 (001) or 125 (125) three digits are always sent
+                                // the Arduino checks for three digits when it recieves the values, if there are not 3 values the message is discarded
                                 myPort.write(nf(int(map(kinectxPos,0,180,0,180)),3)+"-"+nf(int(map(kinectyPos,0,180,0,180)),3)+"," +".");
-                                println(nf(int(map(kinectxPos,0,180,0,180)),3)+"-"+nf(int(map(kinectyPos,0,180,0,180)),3)+"," +".");
-                                pushMatrix();
-                                translate(700,50);
-                                ellipse(kinectxPos,kinectyPos,5,5);
+                                println(nf(int(map(kinectxPos,0,180,0,180)),3)+"-"+nf(int(map(kinectyPos,0,180,0,180)),3)+"," +".");          // the sent data is also printed to the console for debugging
+                                pushMatrix();                                       // push the matrix so that we can draw a visual representation of the tracked space to the right of the live image
+                                translate(700,50);                                  // the start point for drawing is moved 700 pixels right and 50 down, so it is beside the getColorImage
+                                fill(255,0,0);                                      // set the fill colour of drawn elements to red
+                                ellipse(kinectxPos,kinectyPos,5,5);                 // draw the position of the trakced user in the space
 
-                                for(int j = 0; j<machines.length; j++) {
-                                        strokeWeight(80);
+                                for(int j = 0; j<machines.length; j++) {            // loop through the array of machines so we can display them
+                                        strokeWeight(80);                           // set some parameters for the drawn elements
                                         stroke(255);
-                                        pushMatrix();
-                                        translate(machines[j].x,machines[j].y);
+                                        pushMatrix();                               // push the matrix again so we can translate to each position individually
+                                        translate(machines[j].x,machines[j].y);     // translate to the position of the machine selected on this iteration
+                                        // rotate the cursor so that the number of the machine appears to rotate as the head of the real machine should , to face the user
                                         rotate(atan2(map(kinectyPos,0,180,0,180) - map(machines[j].y,0,180,0,180), map(kinectxPos,0,180,0,180) - map(machines[j].x,0,180,0,180)));
-                                        textSize(32);
-                                        text(j,-10,10);
-                                        popMatrix();
+                                        textSize(32);                               // set the size the text of the machine number will be drawing
+                                        text(j,-10,10);                             // draw the text
+                                        popMatrix();                                // pop the matrix for this individual machine
                                 }
-                                popMatrix();
+                                popMatrix();                                        // pop the matrix for the broader representation
                         }
                 }
         }
