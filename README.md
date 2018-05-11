@@ -9,7 +9,7 @@ The machines are presented in a social state, as a fleet, appearing to converse.
 
 When conversing, the machines diminutive size and squeaky 'voices' could make them seem cute, especially on their own. I attempted to counter this by creating a design that was somewhat industrial, using metal bolts to hold the machines and their frames together to give an industrial feel. Bare materials play a part too, exposed circuitry and burned wood from laser cutting. Early on I printed head assemblies using coloured 3D printer filament, but added a black fascia attached with bolts, to mitigate this. The machines really become sinister when they are part of a fleet. One machine tracking you with it's eyes as you move around it is not particularly effective, but seven machines acting independently is overwhelming.
 
-All along I had the scenario in my head of conversations stifled by the arrival of the subject of such conversation. The sense of exclusion was the foundation of the project is that is exactly how I see the takeover of machines manifesting itself.
+All along I had the scenario in my head of conversations stifled by the arrival of the subject of such conversation. The sense of exclusion was the foundation of the project as that is exactly how I see the takeover of machines manifesting itself.
 
 # TECHNICAL
 This project has taught me a huge amount about physical computing. I have tested, ruled out and selected various solutions and techniques for almost every part of the machines and their build process. I learned lessons ranging from how to build a serial communication protocol to the disadvantages of ordering parts from china.
